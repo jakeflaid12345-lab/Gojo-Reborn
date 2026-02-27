@@ -62,6 +62,8 @@ async def on_raw_reaction_add(payload: nextcord.RawReactionActionEvent):
         return
 
     guild = bot.get_guild(payload.guild_id)
+    if not guild:
+        return
     member = guild.get_member(payload.user_id)
     if not member or member.bot:
         return
@@ -74,7 +76,6 @@ async def on_raw_reaction_add(payload: nextcord.RawReactionActionEvent):
     if unverified_role:
         await member.remove_roles(unverified_role)
 
-# Optional: remove reaction handling if needed
 @bot.event
 async def on_raw_reaction_remove(payload: nextcord.RawReactionActionEvent):
     if payload.message_id not in verify_messages:
@@ -83,6 +84,8 @@ async def on_raw_reaction_remove(payload: nextcord.RawReactionActionEvent):
         return
 
     guild = bot.get_guild(payload.guild_id)
+    if not guild:
+        return
     member = guild.get_member(payload.user_id)
     if not member or member.bot:
         return
@@ -108,18 +111,14 @@ async def verify(ctx):
     message = await ctx.send(embed=embed)
     await message.add_reaction("✅")
     verify_messages.add(message.id)
-    save_verify_messages()  # persist
+    save_verify_messages()  # persist across restarts
 
-# Example placeholder for other commands
+# Example ping command
 @bot.command(name="ping")
 async def ping(ctx):
     await ctx.send("🏓 Pong!")
 
 # ------------------------------
-# RUN BOT (Python 3.13 / Railway safe)
+# RUN BOT
 # ------------------------------
-async def main():
-    async with bot:
-        await bot.start(TOKEN)
-
-asyncio.run(main())
+asyncio.run(bot.start(TOKEN))
